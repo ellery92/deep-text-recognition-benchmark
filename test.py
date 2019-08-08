@@ -9,6 +9,8 @@ import torch.utils.data
 import numpy as np
 from nltk.metrics.distance import edit_distance
 
+import pandas as pd
+
 from utils import CTCLabelConverter, AttnLabelConverter, Averager
 from dataset import hierarchical_dataset, AlignCollate
 from model import Model
@@ -204,6 +206,7 @@ if __name__ == '__main__':
     parser.add_argument('--imgW', type=int, default=100, help='the width of the input image')
     parser.add_argument('--rgb', action='store_true', help='use rgb input')
     parser.add_argument('--character', type=str, default='0123456789abcdefghijklmnopqrstuvwxyz', help='character label')
+    parser.add_argument('--charset_file', type=str, default=None, help='character set file')
     parser.add_argument('--sensitive', action='store_true', help='for sensitive character mode')
     parser.add_argument('--PAD', action='store_true', help='whether to keep ratio then pad for image resize')
     parser.add_argument('--data_filtering_off', action='store_true', help='for data_filtering_off mode')
@@ -223,6 +226,11 @@ if __name__ == '__main__':
     """ vocab / character number configuration """
     if opt.sensitive:
         opt.character = string.printable[:-6]  # same with ASTER setting (use 94 char).
+
+    if opt.charset_file:
+        df = pd.read_csv(opt.charset_file, sep="\t", names=["index", "char"])
+        opt.character = list(df.char)
+
 
     cudnn.benchmark = True
     cudnn.deterministic = True
