@@ -4,6 +4,7 @@ import fire
 import os
 import lmdb
 import cv2
+import pandas as pd
 
 import numpy as np
 
@@ -25,7 +26,10 @@ def writeCache(env, cache):
             txn.put(k, v)
 
 
-def createDataset(inputPath, gtFile, outputPath, checkValid=True):
+def createDataset(inputPath, gtFile, outputPath,
+                  img_name_col = 0,
+                  img_text_col = 1,
+                  checkValid=True):
     """
     Create LMDB dataset for training and evaluation.
     ARGS:
@@ -39,12 +43,17 @@ def createDataset(inputPath, gtFile, outputPath, checkValid=True):
     cache = {}
     cnt = 1
 
-    with open(gtFile, 'r', encoding='utf-8') as data:
-        datalist = data.readlines()
+    # with open(gtFile, 'r', encoding='utf-8') as data:
+    #     datalist = data.readlines()
+    df = pd.read_csv(gtFile, sep="\t", usecols=[img_name_col, img_text_col], names=["img_name", "img_text"])
+    img_paths = list(df.img_name)
+    img_texts = list(df.img_text)
+    assert(len(img_paths) == len(img_texts))
 
-    nSamples = len(datalist)
+    nSamples = len(img_paths)
     for i in range(nSamples):
-        imagePath, label = datalist[i].strip('\n').split('\t')
+        imagePath = img_paths[i]
+        label = img_texts[i]
         imagePath = os.path.join(inputPath, imagePath)
 
         # # only use alphanumeric data
