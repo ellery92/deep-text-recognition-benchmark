@@ -76,6 +76,9 @@ def validation(model, criterion, evaluation_loader, converter, opt):
     infer_time = 0
     valid_loss_avg = Averager()
 
+    if opt.result_file:
+        result_text_list = open(opt.result_file, "w")
+
     for i, (image_tensors, labels) in enumerate(evaluation_loader):
         batch_size = image_tensors.size(0)
         length_of_data = length_of_data + batch_size
@@ -128,6 +131,8 @@ def validation(model, criterion, evaluation_loader, converter, opt):
                 pred = pred[:pred.find('[s]')]  # prune after "end of sentence" token ([s])
                 gt = gt[:gt.find('[s]')]
 
+            result_text_list.write(pred+"\n")
+
             if pred == gt:
                 n_correct += 1
             if len(gt) == 0:
@@ -136,6 +141,7 @@ def validation(model, criterion, evaluation_loader, converter, opt):
                 norm_ED += edit_distance(pred, gt) / len(gt)
 
     accuracy = n_correct / float(length_of_data) * 100
+    result_text_list.close()
 
     return valid_loss_avg.val(), accuracy, norm_ED, preds_str, labels, infer_time, length_of_data
 
@@ -220,6 +226,8 @@ if __name__ == '__main__':
     parser.add_argument('--output_channel', type=int, default=512,
                         help='the number of output channel of Feature extractor')
     parser.add_argument('--hidden_size', type=int, default=256, help='the size of the LSTM hidden state')
+    parser.add_argument('--result_file', type=str, required=True, help='Result text list file')
+
 
     opt = parser.parse_args()
 
