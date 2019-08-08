@@ -76,7 +76,7 @@ def validation(model, criterion, evaluation_loader, converter, opt):
     infer_time = 0
     valid_loss_avg = Averager()
 
-    if opt.result_file:
+    if opt.result_file is not None:
         result_text_list = open(opt.result_file, "w")
 
     for i, (image_tensors, labels) in enumerate(evaluation_loader):
@@ -131,7 +131,8 @@ def validation(model, criterion, evaluation_loader, converter, opt):
                 pred = pred[:pred.find('[s]')]  # prune after "end of sentence" token ([s])
                 gt = gt[:gt.find('[s]')]
 
-            result_text_list.write(pred+"\t"+gt+"\n")
+            if opt.result_file is not None:
+                result_text_list.write(pred+"\t"+gt+"\n")
 
             if pred == gt:
                 n_correct += 1
@@ -141,7 +142,8 @@ def validation(model, criterion, evaluation_loader, converter, opt):
                 norm_ED += edit_distance(pred, gt) / len(gt)
 
     accuracy = n_correct / float(length_of_data) * 100
-    result_text_list.close()
+    if opt.result_file is not None:
+        result_text_list.close()
 
     return valid_loss_avg.val(), accuracy, norm_ED, preds_str, labels, infer_time, length_of_data
 
