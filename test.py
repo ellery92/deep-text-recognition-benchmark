@@ -131,7 +131,7 @@ def validation(model, criterion, evaluation_loader, converter, opt):
                 pred = pred[:pred.find('[s]')]  # prune after "end of sentence" token ([s])
                 gt = gt[:gt.find('[s]')]
 
-            result_text_list.write(pred+"\n")
+            result_text_list.write(pred+"\t"+gt+"\n")
 
             if pred == gt:
                 n_correct += 1
