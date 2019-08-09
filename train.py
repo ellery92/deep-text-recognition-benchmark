@@ -243,6 +243,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_channel', type=int, default=512,
                         help='the number of output channel of Feature extractor')
     parser.add_argument('--hidden_size', type=int, default=256, help='the size of the LSTM hidden state')
+    parser.add_argument('--result_file', type=str, default=None, help='result file to write')
 
     opt = parser.parse_args()
 
@@ -260,6 +261,7 @@ if __name__ == '__main__':
     if opt.charset_file:
         df = pd.read_csv(opt.charset_file, sep="\t", names=["index", "char"])
         opt.character = list(df.char)
+        print ("len of opt.character=", len(opt.character))
 
     """ Seed and GPU setting """
     # print("Random Seed: ", opt.manualSeed)
