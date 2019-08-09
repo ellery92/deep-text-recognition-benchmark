@@ -89,6 +89,8 @@ class AttnLabelConverter(object):
                 if char not in self.dict:
                     self.character.append(char)
                     self.dict[char] = len(self.character)-1
+                    with open("char_extra.txt", "a") as f:
+                        f.write("{}\t{}\n".format(self.dict[char]-2, char))
 
             text = [self.dict[char] for char in text]
             batch_text[i][1:1 + len(text)] = torch.LongTensor(text)  # batch_text[:, 0] = [GO] token
